@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { id, tx } from "@instantdb/react";
 import { db } from "./db";
+import "./App.css";
 
 const DEFAULT_FIXED = [
   { id: "insurance", name: "Car Insurance", monthlyAmount: 0 },
@@ -228,6 +229,7 @@ function Tracker({ user }) {
   const savedDiff=totalSaved-prevSaved;
 
   const card   ={background:"#1a1a24",borderRadius:16,padding:16,border:"1px solid #22223a",marginBottom:12};
+  const cardG  ={background:"#1a1a24",borderRadius:16,padding:16,border:"1px solid #22223a",marginBottom:0};
   const inp    ={width:"100%",background:"#0a0a10",border:"1px solid #2a2a3a",borderRadius:10,color:"#fff",padding:"11px 14px",fontSize:15,boxSizing:"border-box",outline:"none"};
   const lbl    ={fontSize:11,color:"#888",textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:6,display:"block"};
   const pill   =a=>({flex:1,padding:"9px 0",borderRadius:8,border:"none",cursor:"pointer",background:a?T:"transparent",color:a?"#fff":"#555",fontWeight:600,fontSize:14,transition:"all 0.15s"});
@@ -235,8 +237,6 @@ function Tracker({ user }) {
   const primBtn=c=>({width:"100%",background:c||T,border:"none",borderRadius:12,color:"#fff",padding:"13px 0",fontSize:15,fontWeight:700,cursor:"pointer"});
   const addBtn ={background:T2,border:`1px dashed ${T3}`,borderRadius:10,color:T,padding:"9px 0",fontSize:13,fontWeight:700,cursor:"pointer",width:"100%",marginTop:4};
   const delBtn ={background:"none",border:"1px solid #2a2a3a",borderRadius:8,color:"#555",cursor:"pointer",padding:"0 11px",fontSize:18,flexShrink:0,alignSelf:"stretch",display:"flex",alignItems:"center"};
-  const grid   ={display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(280px,1fr))",gap:12,marginBottom:12};
-  const cardInGrid = {...card, marginBottom:0};
 
   const mainPanels=["settings_fixed","settings_limits","log"];
   const sheetPanels=["log_income","log_expense"];
@@ -246,8 +246,9 @@ function Tracker({ user }) {
   if (error)     return <CenterMsg text={"Error: " + error.message} />;
 
   return (
-    <div style={{fontFamily:"system-ui,-apple-system,sans-serif",background:"#0f0f13",minHeight:"100vh",color:"#e5e5e5",padding:"20px 16px 110px",maxWidth:1100,margin:"0 auto"}}>
+    <div className="app-shell" style={{fontFamily:"system-ui,-apple-system,sans-serif",background:"#0f0f13",minHeight:"100vh",color:"#e5e5e5"}}>
 
+      {/* Header */}
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:18}}>
         <h1 style={{margin:0,fontSize:19,fontWeight:800,color:"#fff",letterSpacing:"-0.5px"}}>Budget Tracker</h1>
         <div style={{display:"flex",gap:7}}>
@@ -257,15 +258,9 @@ function Tracker({ user }) {
         </div>
       </div>
 
-      {!mainPanels.includes(panel)&&(
-        <div style={{display:"flex",background:"#1a1a24",borderRadius:11,padding:4,marginBottom:18}}>
-          {["weekly","monthly"].map(v=>(
-            <button key={v} onClick={()=>setView(v)} style={pill(view===v)}>{v[0].toUpperCase()+v.slice(1)}</button>
-          ))}
-        </div>
-      )}
-
+      {/* SETTINGS: Fixed (contained on desktop) */}
       {panel==="settings_fixed"&&draft&&(
+        <div className="panel-wrap">
         <div style={card}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
             <span style={{fontWeight:700,fontSize:15}}>Fixed Costs & Income</span>
@@ -305,9 +300,12 @@ function Tracker({ user }) {
             </button>
           </div>
         </div>
+        </div>
       )}
 
+      {/* SETTINGS: Limits (contained on desktop) */}
       {panel==="settings_limits"&&draft&&(
+        <div className="panel-wrap">
         <div style={card}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
             <button onClick={()=>setPanel("settings_fixed")} style={{background:"none",border:"none",color:T,cursor:"pointer",fontSize:13,fontWeight:600}}>← Back</button>
@@ -338,9 +336,12 @@ function Tracker({ user }) {
             </button>
           </div>
         </div>
+        </div>
       )}
 
+      {/* LOG (contained on desktop) */}
       {panel==="log"&&(
+        <div className="panel-wrap">
         <div style={card}>
           <div style={{fontWeight:700,fontSize:15,marginBottom:14}}>All Transactions</div>
           {txs.length===0?(
@@ -374,57 +375,71 @@ function Tracker({ user }) {
             );
           })}
         </div>
+        </div>
       )}
 
+      {/* HOME DASHBOARD */}
       {!mainPanels.includes(panel)&&(
         <>
+          {/* Balances — full width */}
           <div style={{...card,background:"#12121c",border:`1px solid ${T5}`,padding:"20px 18px"}}>
             <div style={{display:"flex",justifyContent:"space-between",marginBottom:14}}>
               <div>
                 <div style={{fontSize:11,color:"#888",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:5}}>Checking</div>
-                <div style={{fontSize:26,fontWeight:800,color:"#fff"}}>${fmt(bankBalance)}</div>
+                <div className="hero-num" style={{fontSize:26,fontWeight:800,color:"#fff"}}>${fmt(bankBalance)}</div>
               </div>
               <div style={{textAlign:"right"}}>
                 <div style={{fontSize:11,color:"#888",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:5}}>Stocks</div>
-                <div style={{fontSize:26,fontWeight:800,color:"#22c55e"}}>${fmt(stockBalance)}</div>
+                <div className="hero-num" style={{fontSize:26,fontWeight:800,color:"#22c55e"}}>${fmt(stockBalance)}</div>
               </div>
             </div>
             <div style={{borderTop:"1px solid #22223a",paddingTop:12,display:"flex",justifyContent:"space-between",alignItems:"baseline"}}>
               <span style={{fontSize:12,color:"#888",textTransform:"uppercase",letterSpacing:"0.07em"}}>Total</span>
-              <span style={{fontSize:22,fontWeight:800,color:"#fff"}}>${fmt(bankBalance+stockBalance)}</span>
+              <span className="hero-total" style={{fontSize:22,fontWeight:800,color:"#fff"}}>${fmt(bankBalance+stockBalance)}</span>
             </div>
           </div>
 
-          <div style={{...card,border:`1px solid ${T5}`}}>
-            <div style={{fontSize:11,color:"#888",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:4}}>
-              {view==="weekly"?"This Week":"This Month"}
-            </div>
-            <div style={{fontSize:36,fontWeight:800,color:totalSaved>=0?"#22c55e":"#ef4444",marginBottom:12}}>
-              ${fmt(Math.abs(totalSaved))}
-              {totalSaved<0&&<span style={{fontSize:14,fontWeight:500}}> overspent</span>}
-            </div>
-            <div style={{display:"flex",flexDirection:"column",gap:5}}>
-              {[
-                {label:"Income",                                       val:`+$${fmt(totalIncome)}`,    color:"#22c55e"},
-                {label:`Fixed costs${view==="weekly"?" (est.)":""}`,  val:`−$${fmt(totalFixedPer)}`,  color:"#f87171"},
-                {label:"Variable spending",                            val:`−$${fmt(totalVariable)}`,  color:"#f87171"},
-              ].map(row=>(
-                <div key={row.label} style={{display:"flex",justifyContent:"space-between",fontSize:13}}>
-                  <span style={{color:"#999"}}>{row.label}</span>
-                  <span style={{color:row.color,fontWeight:600}}>{row.val}</span>
-                </div>
-              ))}
-            </div>
-            <div style={{marginTop:12,paddingTop:10,borderTop:"1px solid #22223a",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-              <span style={{fontSize:12,color:"#888"}}>vs last {view==="weekly"?"week":"month"}: ${fmt(Math.abs(prevSaved))}</span>
-              <span style={{fontSize:12,fontWeight:700,color:savedDiff>=0?"#22c55e":"#ef4444"}}>
-                {savedDiff>=0?"▲":"▼"} ${fmt(Math.abs(savedDiff))}
-              </span>
-            </div>
+          {/* Toggle — below balances */}
+          <div style={{display:"flex",background:"#1a1a24",borderRadius:11,padding:4,marginBottom:18}}>
+            {["weekly","monthly"].map(v=>(
+              <button key={v} onClick={()=>setView(v)} style={pill(view===v)}>{v[0].toUpperCase()+v.slice(1)}</button>
+            ))}
           </div>
 
-          <div style={grid}>
-            <div style={cardInGrid}>
+          {/* 2x2 grid: This Week | Income / Fixed Costs | Variable Spending */}
+          <div className="dash-grid">
+
+            {/* This Week */}
+            <div style={{...cardG,border:`1px solid ${T5}`}}>
+              <div style={{fontSize:11,color:"#888",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:4}}>
+                {view==="weekly"?"This Week":"This Month"}
+              </div>
+              <div className="bignum" style={{fontSize:36,fontWeight:800,color:totalSaved>=0?"#22c55e":"#ef4444",marginBottom:12}}>
+                ${fmt(Math.abs(totalSaved))}
+                {totalSaved<0&&<span style={{fontSize:14,fontWeight:500}}> overspent</span>}
+              </div>
+              <div style={{display:"flex",flexDirection:"column",gap:5}}>
+                {[
+                  {label:"Income",                                       val:`+$${fmt(totalIncome)}`,    color:"#22c55e"},
+                  {label:`Fixed costs${view==="weekly"?" (est.)":""}`,  val:`−$${fmt(totalFixedPer)}`,  color:"#f87171"},
+                  {label:"Variable spending",                            val:`−$${fmt(totalVariable)}`,  color:"#f87171"},
+                ].map(row=>(
+                  <div key={row.label} style={{display:"flex",justifyContent:"space-between",fontSize:13}}>
+                    <span style={{color:"#999"}}>{row.label}</span>
+                    <span style={{color:row.color,fontWeight:600}}>{row.val}</span>
+                  </div>
+                ))}
+              </div>
+              <div style={{marginTop:12,paddingTop:10,borderTop:"1px solid #22223a",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                <span style={{fontSize:12,color:"#888"}}>vs last {view==="weekly"?"week":"month"}: ${fmt(Math.abs(prevSaved))}</span>
+                <span style={{fontSize:12,fontWeight:700,color:savedDiff>=0?"#22c55e":"#ef4444"}}>
+                  {savedDiff>=0?"▲":"▼"} ${fmt(Math.abs(savedDiff))}
+                </span>
+              </div>
+            </div>
+
+            {/* Income */}
+            <div style={cardG}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
                 <span style={{fontWeight:700,fontSize:14}}>Income</span>
                 <div style={{display:"flex",alignItems:"center",gap:10}}>
@@ -449,7 +464,8 @@ function Tracker({ user }) {
               ))}
             </div>
 
-            <div style={cardInGrid}>
+            {/* Fixed Costs */}
+            <div style={cardG}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
                 <span style={{fontWeight:700,fontSize:14}}>Fixed Costs</span>
                 <span style={{fontSize:13,color:"#f87171"}}>−${fmt(totalFixed)}/mo</span>
@@ -461,48 +477,54 @@ function Tracker({ user }) {
                 </div>
               ))}
             </div>
-          </div>
 
-          <div style={{fontSize:11,color:"#888",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:8}}>Variable Spending</div>
-          <div style={grid}>
-          {cats.map(cat=>{
-            const spent=spentFor(cat.id);
-            const limit=view==="weekly"?cat.weeklyLimit:cat.monthlyLimit;
-            const pct=limit>0?spent/limit:0;
-            const over=spent-limit;
-            return(
-              <div key={cat.id} style={{...cardInGrid,cursor:"pointer"}}
-                onClick={()=>{setExpenseForm({categoryId:cat.id,amount:"",note:""});setPanel("log_expense");}}>
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:limit>0?8:0}}>
-                  <span style={{fontSize:14,fontWeight:600,color:"#ccc"}}>{cat.name}</span>
-                  <div style={{textAlign:"right"}}>
-                    <div>
-                      <span style={{fontSize:14,fontWeight:700,color:limit>0?barColor(pct):"#fff"}}>${fmt(spent)}</span>
-                      <span style={{fontSize:13,color:"#333"}}>{limit>0?` / $${fmt(limit)}`:""}</span>
-                    </div>
-                    {over>0&&limit>0&&(
-                      <div style={{background:"#ef444420",border:"1px solid #ef444440",borderRadius:6,padding:"2px 8px",fontSize:11,color:"#ef4444",fontWeight:700,marginTop:4,display:"inline-block"}}>
-                        ${fmt(over)} over
-                      </div>
-                    )}
-                  </div>
-                </div>
-                {limit>0&&(
-                  <>
-                    <div style={{background:"#22223a",borderRadius:999,height:6,overflow:"hidden"}}>
-                      <div style={{height:"100%",borderRadius:999,width:`${Math.min(pct*100,100)}%`,background:barColor(pct),transition:"width 0.4s ease"}}/>
-                    </div>
-                    <div style={{fontSize:11,color:"#555",marginTop:5}}>${fmt(Math.max(limit-spent,0))} remaining · tap to log</div>
-                  </>
-                )}
-                {limit===0&&<div style={{fontSize:11,color:"#555",marginTop:6}}>no limit set · tap to log</div>}
+            {/* Variable Spending — header + stacked category cards */}
+            <div className="varspend">
+              <div className="vs-head">
+                <span className="vs-title">Variable Spending</span>
+                <span className="vs-total">−${fmt(totalVariable)}</span>
               </div>
-            );
-          })}
+              {cats.map(cat=>{
+                const spent=spentFor(cat.id);
+                const limit=view==="weekly"?cat.weeklyLimit:cat.monthlyLimit;
+                const pct=limit>0?spent/limit:0;
+                const over=spent-limit;
+                return(
+                  <div key={cat.id} style={{...cardG,cursor:"pointer"}}
+                    onClick={()=>{setExpenseForm({categoryId:cat.id,amount:"",note:""});setPanel("log_expense");}}>
+                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:limit>0?8:0}}>
+                      <span style={{fontSize:14,fontWeight:600,color:"#ccc"}}>{cat.name}</span>
+                      <div style={{textAlign:"right"}}>
+                        <div>
+                          <span style={{fontSize:14,fontWeight:700,color:limit>0?barColor(pct):"#fff"}}>${fmt(spent)}</span>
+                          <span style={{fontSize:13,color:"#333"}}>{limit>0?` / $${fmt(limit)}`:""}</span>
+                        </div>
+                        {over>0&&limit>0&&(
+                          <div style={{background:"#ef444420",border:"1px solid #ef444440",borderRadius:6,padding:"2px 8px",fontSize:11,color:"#ef4444",fontWeight:700,marginTop:4,display:"inline-block"}}>
+                            ${fmt(over)} over
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    {limit>0&&(
+                      <>
+                        <div style={{background:"#22223a",borderRadius:999,height:6,overflow:"hidden"}}>
+                          <div style={{height:"100%",borderRadius:999,width:`${Math.min(pct*100,100)}%`,background:barColor(pct),transition:"width 0.4s ease"}}/>
+                        </div>
+                        <div style={{fontSize:11,color:"#555",marginTop:5}}>${fmt(Math.max(limit-spent,0))} remaining · tap to log</div>
+                      </>
+                    )}
+                    {limit===0&&<div style={{fontSize:11,color:"#555",marginTop:6}}>no limit set · tap to log</div>}
+                  </div>
+                );
+              })}
+            </div>
+
           </div>
         </>
       )}
 
+      {/* FABs */}
       {!mainPanels.includes(panel)&&!sheetPanels.includes(panel)&&(
         <div style={{position:"fixed",bottom:28,right:20,display:"flex",flexDirection:"column",gap:12,zIndex:50}}>
           <button onClick={()=>setPanel("log_income")}
@@ -512,6 +534,7 @@ function Tracker({ user }) {
         </div>
       )}
 
+      {/* Income sheet */}
       {panel==="log_income"&&(
         <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.7)",display:"flex",alignItems:"flex-end",justifyContent:"center",zIndex:100}}
           onClick={e=>e.target===e.currentTarget&&setPanel(null)}>
@@ -547,6 +570,7 @@ function Tracker({ user }) {
         </div>
       )}
 
+      {/* Expense sheet */}
       {panel==="log_expense"&&(
         <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.7)",display:"flex",alignItems:"flex-end",justifyContent:"center",zIndex:100}}
           onClick={e=>e.target===e.currentTarget&&setPanel(null)}>
